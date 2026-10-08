@@ -178,9 +178,7 @@ def run_analysis(data):
     print("=" * 60)
 
     call_results = analyse_calls(data)
-
     signal_results = analyse_signal(data)
-
     network_results = analyse_network(data)
 
     analysis_results = {
@@ -192,3 +190,16 @@ def run_analysis(data):
     print("\n[✓] Analysis completed successfully.")
 
     return analysis_results
+
+
+if __name__ == "__main__":
+    import pandas as pd
+    sample = pd.DataFrame({
+        "call_type": ["INCOMING", "OUTGOING", "MISSED"],
+        "duration_seconds": [60, 120, 0],
+        "rsrp": [-85, -97, -105],
+        "radio_type": ["LTE", "LTE", "5G"],
+        "cell_id": [101, 101, 202],
+    })
+    run_analysis(sample)
+
