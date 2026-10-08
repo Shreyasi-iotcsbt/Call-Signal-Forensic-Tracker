@@ -58,9 +58,16 @@ def acquire_data(requisition):
     destination_abs = os.path.abspath(destination)
 
     if source_abs == destination_abs:
-        print("[!] Source file is already inside the raw evidence folder.")
-        return destination
-
+    print("[!] Source file is already inside the raw evidence folder.")
+    return {
+        "status": "ACQUIRED",
+        "source": source_abs,
+        "evidence_path": destination,
+        "filename": filename,
+        "extension": extension,
+        "acquisition_time": datetime.now().isoformat(),
+        "size_bytes": os.path.getsize(destination)
+    }
     try:
 
         shutil.copy2(
