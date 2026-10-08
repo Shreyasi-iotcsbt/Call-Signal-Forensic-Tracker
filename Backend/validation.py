@@ -3,7 +3,8 @@
 # Data Validation Module
 # ============================================================
 
-import os
+from pathlib import Path
+
 import pandas as pd
 
 
@@ -24,17 +25,17 @@ def validate_data(evidence, requisition):
 
     file_path = evidence.get("evidence_path")
 
-    if not file_path or not os.path.isfile(file_path):
+    if not file_path or not Path(file_path).is_file():
         print("[!] Evidence file not found.")
         return None
 
     # Load file
     try:
 
-        extension = os.path.splitext(file_path)[1].lower()
+        extension = Path(file_path).suffix.lower()
 
         if extension == ".csv":
-            data = pd.read_csv(file_path)
+            data = pd.read_csv(file_path, dtype={"phone_number": "string"})
 
         elif extension == ".json":
             data = pd.read_json(file_path)
@@ -61,7 +62,7 @@ def validate_data(evidence, requisition):
         data.columns
         .str.strip()
         .str.lower()
-        .str.replace(" ", "_")
+        .str.replace(" ", "_", regex=False)
     )
 
     # Required columns
@@ -134,17 +135,9 @@ def validate_data(evidence, requisition):
         return None
 
     # Check phone numbers
-    data["phone_number"] = (
-        data["phone_number"]
-        .astype(str)
-        .str.strip()
-    )
+    data["phone_number"] = data["phone_number"].astype("string").str.strip()
 
-    invalid_numbers = (
-        data["phone_number"]
-        .isin(["", "nan", "None"])
-        .sum()
-    )
+    invalid_numbers = (data["phone_number"].isna() | data["phone_number"].eq("")).sum()
 
     if invalid_numbers > 0:
 
@@ -177,6 +170,31 @@ def validate_data(evidence, requisition):
             data["duration_seconds"],
             errors="coerce"
         )
+
+        if requisition.get("call_records") and (
+            data["duration_seconds"].isna().any()
+            or data["duration_seconds"].lt(0).any()
+        ):
+            print("[!] Call durations must be valid non-negative numbers.")
+            return None
+
+    if requisition.get("call_records"):
+        data["call_type"] = data["call_type"].astype("string").str.strip().str.upper()
+        valid_call_types = {"INCOMING", "OUTGOING", "MISSED"}
+        if data["call_type"].isna().any() or not data["call_type"].isin(valid_call_types).all():
+            print("[!] Call types must be INCOMING, OUTGOING, or MISSED.")
+            return None
+
+    if requisition.get("signal_data"):
+        if data["rsrp"].isna().any():
+            print("[!] Signal strength values must be valid numbers.")
+            return None
+
+        for column in ("cell_id", "radio_type"):
+            values = data[column].astype("string").str.strip()
+            if values.isna().any() or values.eq("").any():
+                print(f"[!] {column} values cannot be empty.")
+                return None
 
     # Check duplicate records
     duplicate_count = data.duplicated().sum()

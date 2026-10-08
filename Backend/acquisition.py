@@ -1,9 +1,11 @@
-import os
+import hashlib
 import shutil
 from datetime import datetime
+from pathlib import Path
 
 
-RAW_DIR = os.path.join("data", "raw")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
 
 def acquire_data(requisition):
@@ -27,48 +29,49 @@ def acquire_data(requisition):
 
     print("\nThis prototype accepts an authorised CSV or JSON export.")
 
-    file_path = input(
+    entered_path = input(
         "\nEnter path to authorised device export: "
     ).strip().strip('"')
+    source = Path(entered_path).expanduser()
+    if not source.is_absolute() and not source.is_file():
+        source = PROJECT_ROOT / source
+    source = source.resolve()
 
     # Check file exists
-    if not os.path.isfile(file_path):
+    if not source.is_file():
         print("[!] File not found.")
         return None
 
     # Check supported format
-    extension = os.path.splitext(file_path)[1].lower()
+    extension = source.suffix.lower()
 
     if extension not in [".csv", ".json"]:
         print("[!] Only CSV and JSON files are supported.")
         return None
 
     # Create raw evidence directory
-    os.makedirs(RAW_DIR, exist_ok=True)
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-    filename = os.path.basename(file_path)
+    filename = source.name
 
-    destination = os.path.join(
-        RAW_DIR,
-        filename
-    )
+    destination = RAW_DIR / filename
 
     # Prevent source and destination being the same file
-    source_abs = os.path.abspath(file_path)
-    destination_abs = os.path.abspath(destination)
-
-    if source_abs == destination_abs:
-        print("[!] Source file is already inside the raw evidence folder.")
-        return destination
-
-    try:
-
-        shutil.copy2(
-            file_path,
-            destination
+    source_abs = str(source)
+    if source == destination.resolve():
+        destination = source
+    elif destination.exists():
+        timestamp = datetime.now().strftime("%Y%m%dT%H%M%S%f")
+        destination = destination.with_name(
+            f"{destination.stem}_{timestamp}{destination.suffix}"
         )
 
-    except Exception as e:
+    try:
+        if source != destination:
+            shutil.copy2(source, destination)
+        with destination.open("rb") as evidence_file:
+            acquisition_hash = hashlib.file_digest(evidence_file, "sha256").hexdigest()
+    except OSError as e:
 
         print("[!] Acquisition failed:", e)
         return None
@@ -76,17 +79,19 @@ def acquire_data(requisition):
     acquisition = {
         "status": "ACQUIRED",
         "source": source_abs,
-        "evidence_path": destination,
-        "filename": filename,
+        "evidence_path": str(destination),
+        "filename": destination.name,
         "extension": extension,
         "acquisition_time": datetime.now().isoformat(),
-        "size_bytes": os.path.getsize(destination)
+        "size_bytes": destination.stat().st_size,
+        "sha256": acquisition_hash
     }
 
     print("\n[+] Evidence acquired successfully.")
-    print(f"[+] Evidence file : {filename}")
+    print(f"[+] Evidence file : {destination.name}")
     print(f"[+] Stored at     : {destination}")
     print(f"[+] Size          : {acquisition['size_bytes']} bytes")
+    print(f"[+] SHA-256       : {acquisition['sha256']}")
     print(f"[+] Acquired at   : {acquisition['acquisition_time']}")
 
     return acquisition

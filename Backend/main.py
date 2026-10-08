@@ -3,12 +3,22 @@
 # Main Application / Pipeline Orchestrator
 # ============================================================
 
-from consent import obtain_consent
-from requisition import create_requisition
-from acquisition import acquire_data
-from validation import validate_data
-from intregrity import verify_integrity
-from analysis import run_analysis
+if __package__:
+    from .acquisition import acquire_data
+    from .analysis import run_analysis
+    from .consent import obtain_consent
+    from .integrity import verify_integrity
+    from .requisition import create_requisition
+    from .report import generate_report
+    from .validation import validate_data
+else:
+    from acquisition import acquire_data
+    from analysis import run_analysis
+    from consent import obtain_consent
+    from integrity import verify_integrity
+    from requisition import create_requisition
+    from report import generate_report
+    from validation import validate_data
 
 
 # ============================================================
@@ -104,11 +114,32 @@ def main():
     print("\n[6] FORENSIC ANALYSIS")
 
     analysis_results = run_analysis(
-        validation["data"]
+        validation["data"],
+        requisition
     )
 
     if analysis_results is None:
         print("\n[!] Analysis failed.")
+        print("[!] Forensic workflow stopped.")
+        return
+
+    # --------------------------------------------------------
+    # STEP 7: REPORT GENERATION
+    # --------------------------------------------------------
+
+    print("\n[7] REPORT GENERATION")
+
+    report = generate_report(
+        consent,
+        requisition,
+        evidence,
+        validation,
+        integrity,
+        analysis_results
+    )
+
+    if report is None:
+        print("\n[!] Report generation failed.")
         print("[!] Forensic workflow stopped.")
         return
 
@@ -126,6 +157,7 @@ def main():
     print("[✓] Data validation passed")
     print("[✓] SHA-256 integrity verified")
     print("[✓] Forensic analysis completed")
+    print("[✓] Report generated")
 
     # --------------------------------------------------------
     # EVIDENCE INFORMATION
@@ -140,6 +172,7 @@ def main():
     print(f"File size        : {evidence['size_bytes']} bytes")
     print(f"Records          : {validation['records']}")
     print(f"SHA-256          : {integrity['hash']}")
+    print(f"Report           : {report['report_path']}")
 
     # --------------------------------------------------------
     # ANALYSIS SUMMARY
@@ -193,8 +226,8 @@ def main():
     print("              HOUR 4 COMPLETE")
     print("=" * 60)
 
-    print("\nAnalysis is ready for:")
-    print("  -> Report generation")
+    print("\nCompleted outputs:")
+    print("  -> Forensic report")
     print("  -> Evidence summary")
     print("  -> Investigation review")
 

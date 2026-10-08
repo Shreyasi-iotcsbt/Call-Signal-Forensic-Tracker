@@ -4,16 +4,17 @@
 # ============================================================
 
 import hashlib
-import os
 from datetime import datetime
+from pathlib import Path
 
 
 # ============================================================
 # CONFIGURATION
 # ============================================================
 
-EVIDENCE_DIR = os.path.join("evidence")
-HASH_FILE = os.path.join(EVIDENCE_DIR, "integrity_hash.txt")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+EVIDENCE_DIR = PROJECT_ROOT / "evidence"
+HASH_FILE = EVIDENCE_DIR / "integrity_hash.txt"
 
 
 # ============================================================
@@ -28,7 +29,7 @@ def calculate_sha256(file_path):
     sha256 = hashlib.sha256()
 
     try:
-        with open(file_path, "rb") as file:
+        with Path(file_path).open("rb") as file:
 
             while True:
                 chunk = file.read(4096)
@@ -65,13 +66,19 @@ def verify_integrity(evidence):
         return None
 
     file_path = evidence.get("evidence_path")
+    acquisition_hash = evidence.get("sha256")
 
     # Check evidence file
     if not file_path:
         print("[!] Evidence path is missing.")
         return None
 
-    if not os.path.isfile(file_path):
+    if not acquisition_hash:
+        print("[!] Acquisition-time SHA-256 baseline is missing.")
+        return None
+
+    file_path = Path(file_path).resolve()
+    if not file_path.is_file():
         print("[!] Evidence file not found.")
         return None
 
@@ -81,21 +88,25 @@ def verify_integrity(evidence):
     if file_hash is None:
         return None
 
+    if file_hash != acquisition_hash:
+        print("[!] Evidence changed after acquisition; integrity verification failed.")
+        return None
+
     # Create evidence directory
-    os.makedirs(EVIDENCE_DIR, exist_ok=True)
+    EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
 
     # Verification time
     verification_time = datetime.now().isoformat()
 
     # Save integrity record
     try:
-        with open(HASH_FILE, "w") as file:
+        with HASH_FILE.open("w", encoding="utf-8") as file:
 
             file.write("CALL & SIGNAL FORENSIC TRACKER\n")
             file.write("EVIDENCE INTEGRITY RECORD\n")
             file.write("=" * 60 + "\n")
-            file.write(f"File Name       : {os.path.basename(file_path)}\n")
-            file.write(f"File Path       : {os.path.abspath(file_path)}\n")
+            file.write(f"File Name       : {file_path.name}\n")
+            file.write(f"File Path       : {file_path}\n")
             file.write("Hash Algorithm  : SHA-256\n")
             file.write(f"SHA-256 Hash    : {file_hash}\n")
             file.write(f"Verified At     : {verification_time}\n")
@@ -109,10 +120,11 @@ def verify_integrity(evidence):
         "status": "VERIFIED",
         "algorithm": "SHA-256",
         "hash": file_hash,
-        "file": os.path.basename(file_path),
-        "file_path": os.path.abspath(file_path),
+        "acquisition_hash": acquisition_hash,
+        "file": file_path.name,
+        "file_path": str(file_path),
         "verification_time": verification_time,
-        "hash_record": HASH_FILE
+        "hash_record": str(HASH_FILE)
     }
 
     # Display result

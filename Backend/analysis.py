@@ -171,15 +171,27 @@ def analyse_network(data):
 # COMPLETE ANALYSIS
 # ============================================================
 
-def run_analysis(data):
+def run_analysis(data, requisition=None):
 
     print("\n" + "=" * 60)
     print("              FORENSIC DATA ANALYSIS")
     print("=" * 60)
 
-    call_results = analyse_calls(data)
-    signal_results = analyse_signal(data)
-    network_results = analyse_network(data)
+    call_results = (
+        analyse_calls(data)
+        if requisition is None or requisition.get("call_records")
+        else None
+    )
+    signal_results = (
+        analyse_signal(data)
+        if requisition is None or requisition.get("signal_data")
+        else None
+    )
+    network_results = (
+        analyse_network(data)
+        if requisition is None or requisition.get("signal_data")
+        else None
+    )
 
     analysis_results = {
         "calls": call_results,
