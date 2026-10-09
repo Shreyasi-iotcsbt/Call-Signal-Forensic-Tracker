@@ -5,6 +5,7 @@ data/processed/*
 evidence/*
 !evidence/.gitkeep
 reports/*.pdf
+reports/*.txt
 
 __pycache__/
 *.pyc
