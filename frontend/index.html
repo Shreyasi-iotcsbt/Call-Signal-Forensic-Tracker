@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111714">
+  <title>Signal Ledger | Forensic Tracker</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="rail" aria-label="Main navigation">
+      <a class="brand-mark" href="#overview" aria-label="Signal Ledger home"><span class="brand-symbol">SL</span></a>
+      <nav class="rail-nav">
+        <a class="rail-link active" href="#overview" aria-label="Overview" title="Overview"><span class="icon-grid">&#9638;</span></a>
+        <a class="rail-link" href="#intake" aria-label="New analysis" title="New analysis"><span class="icon-plus">+</span></a>
+        <a class="rail-link" href="#results" aria-label="Evidence" title="Evidence"><span class="icon-file">&#9635;</span></a>
+      </nav>
+      <div class="rail-bottom"><span class="avatar">FT</span></div>
+    </aside>
+
+    <main class="main-area" id="overview">
+      <header class="topbar">
+        <div class="crumb"><span>FORENSICS</span><i>/</i><strong>Signal Ledger</strong></div>
+        <div class="top-actions"><span class="local-status"><b></b> LOCAL WORKSPACE</span><span class="top-date" id="today"></span></div>
+      </header>
+
+      <section class="hero-band">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-line"></span> CALL &amp; SIGNAL FORENSIC TRACKER</div>
+          <h1>Evidence, in<br><em>clear signal.</em></h1>
+          <p>Controlled intake and review for authorized call records and network telemetry.</p>
+          <a class="hero-cta" href="#intake">Start an examination <span>&#8599;</span></a>
+        </div>
+        <div class="hero-art" aria-label="Abstract topographic radio signal visualization">
+          <div class="art-label art-label-top">FIELD / 01<br><strong>RF SPECTRUM</strong></div>
+          <div class="signal-core"><span></span><span></span><span></span><span></span><i></i></div>
+          <div class="art-cross cross-one"></div><div class="art-cross cross-two"></div>
+          <div class="art-coordinate">37°46'49.0"N<br>122°25'09.0"W</div>
+          <div class="art-label art-label-bottom">MONITORING<br><strong>STANDBY</strong></div>
+          <div class="art-scan"></div>
+        </div>
+        <div class="hero-index">01 <span>/</span> 03</div>
+      </section>
+
+      <section class="metric-strip" aria-label="Workspace status">
+        <div class="metric"><span class="metric-kicker">PIPELINE STATE</span><strong id="pipeline-state"><i class="state-dot idle"></i> STANDBY</strong><small>Consent-gated processing</small></div>
+        <div class="metric"><span class="metric-kicker">ACTIVE EVIDENCE</span><strong id="metric-records">-- <small>records</small></strong><small id="metric-file">No examination loaded</small></div>
+        <div class="metric"><span class="metric-kicker">INTEGRITY</span><strong id="metric-integrity">SHA-256 <small>ready</small></strong><small>Acquisition baseline checked</small></div>
+        <div class="metric metric-time"><span class="metric-kicker">LOCAL SERVICE</span><strong><i class="state-dot live"></i> ONLINE</strong><small>127.0.0.1 / secure loopback</small></div>
+      </section>
+
+      <section class="workspace" id="intake">
+        <div class="section-head">
+          <div><span class="section-number">01</span><div><h2>New examination</h2><p>Define scope, confirm authority, then submit evidence.</p></div></div>
+          <span class="required-note"><b>*</b> REQUIRED CONTROLS</span>
+        </div>
+
+        <div class="work-grid">
+          <form class="intake-panel" id="intake-form">
+            <div class="panel-heading"><span class="step-badge">A</span><div><h3>Examination scope</h3><small>Only selected categories are analyzed</small></div></div>
+            <div class="scope-options">
+              <label class="scope-option"><input type="checkbox" name="call_records" checked><span class="custom-check"></span><span class="scope-icon phone-icon">&#9742;</span><span class="scope-text"><strong>Call records</strong><small>Direction, duration, timestamp</small></span><span class="scope-code">CALL / 01</span></label>
+              <label class="scope-option"><input type="checkbox" name="signal_data" checked><span class="custom-check"></span><span class="scope-icon signal-icon">&#9698;</span><span class="scope-text"><strong>Signal &amp; network</strong><small>RSRP, cell usage, radio type</small></span><span class="scope-code">RF / 02</span></label>
+            </div>
+
+            <div class="panel-heading upload-heading"><span class="step-badge">B</span><div><h3>Evidence source</h3><small>CSV or JSON export, maximum 25 MB</small></div></div>
+            <label class="drop-zone" id="drop-zone" for="evidence-file">
+              <input id="evidence-file" type="file" accept=".csv,.json,text/csv,application/json">
+              <span class="upload-glyph">&#8593;</span><strong id="upload-title">Drop an evidence file here</strong><span id="upload-subtitle">or <u>browse local files</u></span>
+              <span class="file-types"><b>CSV</b><b>JSON</b><span>MAX 25 MB</span></span>
+            </label>
+            <div class="file-preview" id="file-preview" hidden><span class="file-preview-icon">&#9635;</span><div><strong id="file-name">evidence.csv</strong><small id="file-size">0 KB</small></div><button type="button" id="remove-file" aria-label="Remove selected file">&#215;</button></div>
+
+            <label class="consent-row"><input type="checkbox" id="consent"><span class="custom-check"></span><span><strong>Authority confirmed</strong><small>I am authorized to submit this export and consent to its forensic processing.</small></span></label>
+            <div class="form-footer"><span class="privacy-note"><span class="lock-icon">&#9671;</span> Evidence remains in this local workspace.</span><button class="submit-button" id="submit-button" type="submit" disabled><span>Run examination</span><b>&#8594;</b></button></div>
+            <div class="form-message" id="form-message" role="status" aria-live="polite"></div>
+          </form>
+
+          <aside class="workflow-panel">
+            <div class="panel-heading"><span class="step-badge muted">&#10003;</span><div><h3>Forensic sequence</h3><small>Safeguards run in order</small></div></div>
+            <ol class="workflow-list">
+              <li class="complete"><span class="workflow-marker">01</span><div><strong>Consent</strong><small>Explicit authority required</small></div><span class="workflow-check">&#10003;</span></li>
+              <li class="complete"><span class="workflow-marker">02</span><div><strong>Requisition</strong><small>Scope is limited to selection</small></div><span class="workflow-check">&#10003;</span></li>
+              <li><span class="workflow-marker">03</span><div><strong>Acquisition</strong><small>Original export preserved</small></div><span class="workflow-status">WAITING</span></li>
+              <li><span class="workflow-marker">04</span><div><strong>Validation</strong><small>Schema and field checks</small></div><span class="workflow-status">WAITING</span></li>
+              <li><span class="workflow-marker">05</span><div><strong>Integrity</strong><small>SHA-256 baseline verified</small></div><span class="workflow-status">WAITING</span></li>
+              <li><span class="workflow-marker">06</span><div><strong>Analysis</strong><small>Authorized categories only</small></div><span class="workflow-status">WAITING</span></li>
+              <li><span class="workflow-marker">07</span><div><strong>Report</strong><small>Generated for this examination</small></div><span class="workflow-status">WAITING</span></li>
+            </ol>
+            <div class="workflow-foot"><span class="pulse"></span> PIPELINE READY <span class="foot-version">ENGINE 1.0</span></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="workspace number-workspace" aria-label="Phone number search targets">
+        <div class="number-list-card"><div class="table-head number-list-head"><div><span>PHONE NUMBER SEARCH</span><small>Search numbers present in examination evidence</small></div><label class="number-search"><span aria-hidden="true">&#9906;</span><input id="number-search" type="search" inputmode="numeric" autocomplete="off" placeholder="Enter a number" aria-label="Search phone numbers in this evidence"></label><button class="target-add" id="add-target" type="button">Add target</button><span class="table-count" id="number-count">0 NUMBERS</span></div><div class="number-list" id="number-list" aria-live="polite"></div></div>
+        <div class="number-list-card target-card"><div class="table-head"><div><span>SAVED SEARCH TARGETS</span><small>Local targets, separate from evidence findings</small></div><span class="table-count" id="target-count">0 TARGETS</span></div><div class="target-list" id="target-list" aria-live="polite"></div></div>
+      </section>
+
+      <section class="results-section" id="results" hidden>
+        <div class="section-head result-head"><div><span class="section-number">02</span><div><h2>Examination results</h2><p>Validated findings from the selected evidence.</p></div></div><a class="report-link" id="report-link" href="#" download><span>&#8595;</span> Download report</a></div>
+        <div class="result-grid">
+          <article class="result-card call-card"><div class="result-card-head"><span>CALL ACTIVITY</span><span class="card-index">01</span></div><strong class="big-number" id="call-total">--</strong><small class="big-label">TOTAL RECORDS</small><div class="call-breakdown"><div><i class="incoming-dot"></i><span>Incoming</span><b id="incoming-count">--</b></div><div><i class="outgoing-dot"></i><span>Outgoing</span><b id="outgoing-count">--</b></div><div><i class="missed-dot"></i><span>Missed</span><b id="missed-count">--</b></div></div><div class="duration-foot"><span>Total connected duration</span><b id="duration-total">--</b></div></article>
+          <article class="result-card signal-card"><div class="result-card-head"><span>RADIO ENVIRONMENT</span><span class="card-index">02</span></div><div class="signal-reading"><div><small>AVERAGE RSRP</small><strong id="average-rsrp">--</strong><span>dBm</span></div><div class="signal-extremes"><span>Strongest <b id="strongest-rsrp">--</b></span><span>Weakest <b id="weakest-rsrp">--</b></span></div></div><div class="chart-wrap"><div class="chart-y-labels"><span>-60</span><span>-80</span><span>-100</span><span>-120</span></div><svg class="signal-chart" id="signal-chart" viewBox="0 0 600 150" preserveAspectRatio="none" role="img" aria-label="Signal strength across evidence records"><g class="chart-grid"><path d="M0 10H600M0 53H600M0 96H600M0 139H600"></path></g><path class="chart-area" id="chart-area" d=""></path><path class="chart-line" id="chart-line" d=""></path><g id="chart-points"></g></svg><div class="chart-x-labels"><span>RECORD 01</span><span>SEQUENCE</span><span>RECORD END</span></div></div><div class="radio-types" id="radio-types"></div></article>
+          <article class="result-card integrity-card"><div class="result-card-head"><span>EVIDENCE INTEGRITY</span><span class="card-index">03</span></div><div class="integrity-stamp"><span class="stamp-ring">&#10003;</span><div><strong>VERIFIED</strong><small>SHA-256 MATCH</small></div></div><div class="hash-label">ACQUISITION DIGEST</div><code id="digest-value">--</code><div class="integrity-meta"><div><span>FILENAME</span><b id="result-filename">--</b></div><div><span>RECORDS</span><b id="result-records">--</b></div><div><span>DUPLICATES</span><b id="result-duplicates">--</b></div></div></article>
+        </div>
+        <div class="table-card"><div class="table-head"><div><span>EXHIBIT PREVIEW</span><small id="table-caption">Validated rows from acquired evidence</small></div><span class="table-count" id="table-count">0 ROWS</span></div><div class="table-scroll"><table><thead id="table-header"></thead><tbody id="table-body"></tbody></table></div></div>
+      </section>
+      <footer class="page-footer"><span>SIGNAL LEDGER <i>·</i> LOCAL FORENSIC WORKSPACE</span><span>AUTHORIZED USE ONLY <i>·</i> v1.0</span></footer>
+    </main>
+  </div>
+</body>
+</html>

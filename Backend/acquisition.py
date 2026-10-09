@@ -8,7 +8,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
 
-def acquire_data(requisition):
+def acquire_data(requisition, file_path=None):
 
     print("\n" + "=" * 60)
     print("              DATA ACQUISITION")
@@ -29,9 +29,11 @@ def acquire_data(requisition):
 
     print("\nThis prototype accepts an authorised CSV or JSON export.")
 
-    entered_path = input(
-        "\nEnter path to authorised device export: "
-    ).strip().strip('"')
+    entered_path = file_path
+    if entered_path is None:
+        entered_path = input(
+            "\nEnter path to authorised device export: "
+        ).strip().strip('"')
     source = Path(entered_path).expanduser()
     if not source.is_absolute() and not source.is_file():
         source = PROJECT_ROOT / source
